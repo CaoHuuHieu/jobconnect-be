@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: job_connect
+  datasource:
+    url: jdbc:postgresql://localhost:5432/job_connect
+    username: postgres
+    password: 14022001
+    driver-class-name: org.postgresql.Driver
+    jpa:
+      hibernate:
+        ddl-auto: none
+      show-sql: true
+      properties:
+        hibernate:
+          format_sql: true
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 30000
+      max-lifetime: 600000
+  flyway:
+    enabled: true
+    locations: db/migration
+    validate-on-migrate: true
+    baseline-on-migrate: true
+    baseline-version: 0
+
+logging:
+  level:
+    com.job_connect: DEBUG
