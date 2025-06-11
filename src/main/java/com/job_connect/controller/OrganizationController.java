@@ -1,6 +1,5 @@
 package com.job_connect.controller;
 
-import com.job_connect.entity.Organization;
 import com.job_connect.model.PageResponse;
 import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
@@ -11,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 public interface OrganizationController {
 
     @GetMapping()
-    PageResponse<Organization> getOrganization(@ModelAttribute OrganizationRequestDto request);
+    PageResponse<OrganizationDto> getOrganization(@ModelAttribute OrganizationRequestDto request);
 
     @GetMapping("/{id}")
     OrganizationDto getOrganization(@PathVariable String id);

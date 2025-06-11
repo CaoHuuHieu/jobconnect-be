@@ -24,7 +24,7 @@ public class OrganizationDto {
 
     private String termUrl;
 
-    private String avt;
+    private String avatar;
 
     private String createdBy;
 

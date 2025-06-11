@@ -7,7 +7,7 @@ CREATE TABLE organizations (
     website VARCHAR(255),
     policy_url VARCHAR(255),
     term_url VARCHAR(255),
-    avt VARCHAR(255),
+    avatar VARCHAR(255),
     created_by VARCHAR(50),
     created_at TIMESTAMP,
     updated_by VARCHAR(50),

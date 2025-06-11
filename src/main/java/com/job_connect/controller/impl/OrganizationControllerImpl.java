@@ -8,19 +8,24 @@ import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
 import com.job_connect.model.organization.OrganizationRequestDto;
 import com.job_connect.model.organization.OrganizationUpdateDto;
+import com.job_connect.service.OrganizationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping(ApiConstant.ORGANIZATION_API)
+@CrossOrigin(origins = "http://localhost:5174")
 public class OrganizationControllerImpl implements OrganizationController {
 
+    private final OrganizationService organizationService;
+
     @Override
-    public PageResponse<Organization> getOrganization(OrganizationRequestDto request) {
-        PageResponse<Organization> page =  new PageResponse<>();
-        page.setPage(1);
-        return page;
+    public PageResponse<OrganizationDto> getOrganization(OrganizationRequestDto request) {
+        return organizationService.getOrganizations(request);
     }
 
     @Override
@@ -30,7 +35,7 @@ public class OrganizationControllerImpl implements OrganizationController {
 
     @Override
     public OrganizationDto createOrganization(OrganizationCreateDto request) {
-        return null;
+        return organizationService.createOrganization(request);
     }
 
     @Override

@@ -8,6 +8,4 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class OrganizationRequestDto extends PageRequest {
 
-    private String name;
-
 }

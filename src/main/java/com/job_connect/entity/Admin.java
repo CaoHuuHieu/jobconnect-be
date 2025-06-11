@@ -2,6 +2,7 @@ package com.job_connect.entity;
 
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.util.UUID;
 @Data
 @Entity
 @Table(name = "admins")
+@Builder
 public class Admin {
     @Id
     private String id;

@@ -1,5 +1,13 @@
 package com.job_connect.service.impl;
 
+import com.job_connect.entity.Admin;
+import com.job_connect.entity.Organization;
+import com.job_connect.entity.Organization_;
+import com.job_connect.entity.Role;
+import com.job_connect.exception.ForbiddenException;
+import com.job_connect.exception.NotFoundException;
+import com.job_connect.helper.AuthenticationHelper;
+import com.job_connect.mapper.OrganizationMapper;
 import com.job_connect.model.PageResponse;
 import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
@@ -7,28 +15,76 @@ import com.job_connect.model.organization.OrganizationRequestDto;
 import com.job_connect.model.organization.OrganizationUpdateDto;
 import com.job_connect.repository.OrganizationRepository;
 import com.job_connect.service.OrganizationService;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
 public class OrganizationServiceImpl implements OrganizationService {
 
     private final OrganizationRepository organizationRepository;
+    private final OrganizationMapper organizationMapper;
 
     @Override
     public PageResponse<OrganizationDto> getOrganizations(OrganizationRequestDto request) {
-        return null;
+        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        Specification<Organization> specification = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN)) {
+                predicates.add(cb.equal(root.get(Organization_.ID), currentAdmin.getOrganization().getId()));
+            }
+            if (request.getQ() != null && request.getSearch() != null) {
+                predicates.add(
+                        switch (request.getQ()) {
+                            case Organization_.EMAIL -> cb.equal(root.get(Organization_.EMAIL), request.getSearch());
+                            case Organization_.NAME -> cb.equal(root.get(Organization_.NAME), request.getSearch());
+                            case Organization_.PHONE -> cb.equal(root.get(Organization_.PHONE), request.getSearch());
+                            default -> throw new IllegalStateException("Unexpected value: " + request.getQ());
+                        });
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+        Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.Direction.valueOf(request.getSort()), request.getOrderBy());
+        Page<Organization> page = organizationRepository.findAll(specification, pageable);
+        return PageResponse.toPageResponse(page, organizationMapper::toOrganizationDto);
     }
 
     @Override
     public OrganizationDto getOrganization(String id) {
-        return null;
+        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+
+        if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
+            if(!currentAdmin.getOrganization().getId().equals(id) )
+                throw new ForbiddenException("You don't have permission to do this action!");
+
+        Organization organization = organizationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Organization doesn't found!"));
+
+        return organizationMapper.toOrganizationDto(organization);
     }
 
     @Override
+    @Transactional
     public OrganizationDto createOrganization(OrganizationCreateDto request) {
-        return null;
+        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
+            throw new ForbiddenException("You don't have permission to do this action!");
+
+        Organization organization = organizationMapper.toOrganization(request);
+        organization.setCreatedBy(currentAdmin.getId());
+        organization = organizationRepository.save(organization);
+        return organizationMapper.toOrganizationDto(organization);
     }
 
     @Override
