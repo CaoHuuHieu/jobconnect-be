@@ -1,5 +1,6 @@
 package com.job_connect.model.organization;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -28,10 +29,14 @@ public class OrganizationDto {
 
     private String createdBy;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
     private String updatedBy;
 
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private LocalDateTime updatedAt;
+
+    private int status;
 
 }

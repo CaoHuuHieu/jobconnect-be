@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/job_connect
     username: postgres
-    password: postgres
+    password: 14022001
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -25,6 +25,12 @@ spring:
     validate-on-migrate: true
     baseline-on-migrate: true
     baseline-version: 0
+
+
+config:
+    aws_s3:
+      region: us-east-1
+      public_bucket: job-connect-public-bucket
 
 #logging:
 #  level:

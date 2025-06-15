@@ -21,4 +21,7 @@ public interface OrganizationController {
     @PutMapping("/{id}")
     OrganizationDto updateOrganization(@PathVariable String id, @RequestBody OrganizationUpdateDto request);
 
+    @PutMapping("/{id}/{status}")
+    OrganizationDto activeOrganization(@PathVariable String id, @PathVariable int status);
+
 }

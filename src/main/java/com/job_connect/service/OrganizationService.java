@@ -16,5 +16,5 @@ public interface OrganizationService {
 
     OrganizationDto updateOrganizationDto(String id, OrganizationUpdateDto request);
 
-    OrganizationDto activeOrganization(String id, boolean active);
+    OrganizationDto activeOrganization(String id, int status);
 }

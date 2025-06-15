@@ -2,7 +2,6 @@ package com.job_connect.controller.impl;
 
 import com.job_connect.constant.ApiConstant;
 import com.job_connect.controller.OrganizationController;
-import com.job_connect.entity.Organization;
 import com.job_connect.model.PageResponse;
 import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(ApiConstant.ORGANIZATION_API)
-@CrossOrigin(origins = "http://localhost:5174")
 public class OrganizationControllerImpl implements OrganizationController {
 
     private final OrganizationService organizationService;
@@ -30,7 +28,7 @@ public class OrganizationControllerImpl implements OrganizationController {
 
     @Override
     public OrganizationDto getOrganization(String id) {
-        return null;
+        return organizationService.getOrganization(id);
     }
 
     @Override
@@ -40,7 +38,12 @@ public class OrganizationControllerImpl implements OrganizationController {
 
     @Override
     public OrganizationDto updateOrganization(String id, OrganizationUpdateDto request) {
-        return null;
+        return organizationService.updateOrganizationDto(id, request);
+    }
+
+    @Override
+    public OrganizationDto activeOrganization(String id, int status) {
+        return organizationService.activeOrganization(id, status);
     }
 
 

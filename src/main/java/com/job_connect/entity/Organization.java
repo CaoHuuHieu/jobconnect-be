@@ -57,6 +57,9 @@ public class Organization {
     @Column
     private LocalDateTime updatedAt;
 
+    @Column(name = "status")
+    private int status;
+
     @PrePersist
     public void prePersist() {
         if (this.id == null)

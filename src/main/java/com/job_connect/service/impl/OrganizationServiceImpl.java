@@ -18,6 +18,7 @@ import com.job_connect.service.OrganizationService;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,9 +45,10 @@ public class OrganizationServiceImpl implements OrganizationService {
             if (!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN)) {
                 predicates.add(cb.equal(root.get(Organization_.ID), currentAdmin.getOrganization().getId()));
             }
-            if (request.getQ() != null && request.getSearch() != null) {
+            if (StringUtils.isNotBlank(request.getQ()) && StringUtils.isNotBlank(request.getSearch())) {
                 predicates.add(
                         switch (request.getQ()) {
+                            case Organization_.ID -> cb.equal(root.get(Organization_.ID), request.getSearch());
                             case Organization_.EMAIL -> cb.equal(root.get(Organization_.EMAIL), request.getSearch());
                             case Organization_.NAME -> cb.equal(root.get(Organization_.NAME), request.getSearch());
                             case Organization_.PHONE -> cb.equal(root.get(Organization_.PHONE), request.getSearch());
@@ -57,15 +59,16 @@ public class OrganizationServiceImpl implements OrganizationService {
         };
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.Direction.valueOf(request.getSort()), request.getOrderBy());
         Page<Organization> page = organizationRepository.findAll(specification, pageable);
-        return PageResponse.toPageResponse(page, organizationMapper::toOrganizationDto);
+        PageResponse<OrganizationDto> response = PageResponse.toPageResponse(page, organizationMapper::toOrganizationDto);
+        return response;
     }
 
     @Override
     public OrganizationDto getOrganization(String id) {
         Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
 
-        if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
-            if(!currentAdmin.getOrganization().getId().equals(id) )
+        if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN)
+                && !currentAdmin.getOrganization().getId().equals(id) )
                 throw new ForbiddenException("You don't have permission to do this action!");
 
         Organization organization = organizationRepository.findById(id)
@@ -88,12 +91,51 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    @Transactional
     public OrganizationDto updateOrganizationDto(String id, OrganizationUpdateDto request) {
-        return null;
+        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN)
+                ||
+            (currentAdmin.getRole().getCode().equals(Role.ORG_ADMIN) && !currentAdmin.getOrganization().getId().equals(id))
+        ) {
+            throw new ForbiddenException("You don't have permission to do this action!");
+        }
+
+        Organization organization = organizationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Organization doesn't found"));
+        if(request.getAvatar() != null)
+            organization.setAvatar(request.getAvatar());
+        if(request.getName() != null)
+            organization.setName(request.getName());
+        if(request.getPhone() != null)
+            organization.setPhone(request.getPhone());
+        if(request.getEmail() != null)
+            organization.setEmail(request.getEmail());
+        if(request.getAddress() != null)
+            organization.setAddress(request.getAddress());
+        if(request.getWebsite() != null)
+            organization.setWebsite(request.getWebsite());
+        if(request.getTermUrl() != null)
+            organization.setTermUrl(request.getTermUrl());
+        if(request.getPolicyUrl() != null)
+            organization.setPolicyUrl(request.getPolicyUrl());
+
+        organization = organizationRepository.save(organization);
+        return organizationMapper.toOrganizationDto(organization);
     }
 
     @Override
-    public OrganizationDto activeOrganization(String id, boolean active) {
-        return null;
+    @Transactional
+    public OrganizationDto activeOrganization(String id, int status) {
+        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
+            throw new ForbiddenException("You don't have permission to do this action!");
+
+        Organization organization = organizationRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Cannot find this organization!"));
+
+        organization.setStatus(status);
+        organizationRepository.save(organization);
+        return organizationMapper.toOrganizationDto(organization);
     }
 }
