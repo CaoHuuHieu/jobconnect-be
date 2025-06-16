@@ -7,7 +7,7 @@ import com.job_connect.entity.Role;
 import com.job_connect.exception.BusinessException;
 import com.job_connect.exception.ForbiddenException;
 import com.job_connect.exception.NotFoundException;
-import com.job_connect.helper.AuthenticationHelper;
+import com.job_connect.helper.AuthHelper;
 import com.job_connect.mapper.OrganizationMapper;
 import com.job_connect.model.ErrorDetail;
 import com.job_connect.model.ErrorResponse;
@@ -42,7 +42,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public PageResponse<OrganizationDto> getOrganizations(OrganizationRequestDto request) {
-        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        Admin currentAdmin = AuthHelper.getCurrentAdmin();
         Specification<Organization> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             if (!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN)) {
@@ -62,13 +62,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         };
         Pageable pageable = PageRequest.of(request.getPage(), request.getSize(), Sort.Direction.valueOf(request.getSort()), request.getOrderBy());
         Page<Organization> page = organizationRepository.findAll(specification, pageable);
-        PageResponse<OrganizationDto> response = PageResponse.toPageResponse(page, organizationMapper::toOrganizationDto);
-        return response;
+        return PageResponse.toPageResponse(page, organizationMapper::toOrganizationDto);
     }
 
     @Override
     public OrganizationDto getOrganization(String id) {
-        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        Admin currentAdmin = AuthHelper.getCurrentAdmin();
 
         if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN)
                 && !currentAdmin.getOrganization().getId().equals(id) )
@@ -83,7 +82,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public OrganizationDto createOrganization(OrganizationCreateDto request) {
-        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        Admin currentAdmin = AuthHelper.getCurrentAdmin();
         if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
             throw new ForbiddenException("You don't have permission to do this action!");
 
@@ -95,7 +94,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public OrganizationDto updateOrganizationDto(String id, OrganizationUpdateDto request) {
-        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        Admin currentAdmin = AuthHelper.getCurrentAdmin();
         if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN)
                 ||
             (currentAdmin.getRole().getCode().equals(Role.ORG_ADMIN) && !currentAdmin.getOrganization().getId().equals(id))
@@ -127,7 +126,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     @Transactional
     public OrganizationDto activeOrganization(String id, int status) {
-        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        Admin currentAdmin = AuthHelper.getCurrentAdmin();
         if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
             throw new ForbiddenException("You don't have permission to do this action!");
 
@@ -141,7 +140,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public void checkOrgCode(String orgCode) {
-        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        Admin currentAdmin = AuthHelper.getCurrentAdmin();
         if (!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
             throw new ForbiddenException("You don't have permission to do this action!");
         Organization organization = organizationRepository.findByCode(orgCode);

@@ -4,8 +4,10 @@ package com.job_connect.entity;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -40,24 +42,19 @@ public class Admin {
     private String createdBy;
 
     @Column
-    private LocalDateTime createdAt;
+    @CreationTimestamp
+    private Instant createdAt;
 
     @Column
     private String updatedBy;
 
     @Column
-    private LocalDateTime updatedAt;
+    @UpdateTimestamp
+    private Instant updatedAt;
 
     @PrePersist
     public void prePersist() {
         if (this.id == null)
             this.id = UUID.randomUUID().toString();
-        this.createdAt = LocalDateTime.now();
     }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
 }
