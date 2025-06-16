@@ -4,10 +4,13 @@ import com.job_connect.entity.Admin;
 import com.job_connect.entity.Organization;
 import com.job_connect.entity.Organization_;
 import com.job_connect.entity.Role;
+import com.job_connect.exception.BusinessException;
 import com.job_connect.exception.ForbiddenException;
 import com.job_connect.exception.NotFoundException;
 import com.job_connect.helper.AuthenticationHelper;
 import com.job_connect.mapper.OrganizationMapper;
+import com.job_connect.model.ErrorDetail;
+import com.job_connect.model.ErrorResponse;
 import com.job_connect.model.PageResponse;
 import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
@@ -85,7 +88,6 @@ public class OrganizationServiceImpl implements OrganizationService {
             throw new ForbiddenException("You don't have permission to do this action!");
 
         Organization organization = organizationMapper.toOrganization(request);
-        organization.setCreatedBy(currentAdmin.getId());
         organization = organizationRepository.save(organization);
         return organizationMapper.toOrganizationDto(organization);
     }
@@ -103,22 +105,20 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         Organization organization = organizationRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Organization doesn't found"));
-        if(request.getAvatar() != null)
-            organization.setAvatar(request.getAvatar());
+        if(request.getOrgLogo() != null)
+            organization.setOrgLogo(request.getOrgLogo());
         if(request.getName() != null)
             organization.setName(request.getName());
-        if(request.getPhone() != null)
-            organization.setPhone(request.getPhone());
         if(request.getEmail() != null)
             organization.setEmail(request.getEmail());
         if(request.getAddress() != null)
             organization.setAddress(request.getAddress());
         if(request.getWebsite() != null)
             organization.setWebsite(request.getWebsite());
-        if(request.getTermUrl() != null)
-            organization.setTermUrl(request.getTermUrl());
-        if(request.getPolicyUrl() != null)
-            organization.setPolicyUrl(request.getPolicyUrl());
+        if(request.getTermsUrl() != null)
+            organization.setTermsUrl(request.getTermsUrl());
+        if(request.getPrivacyUrl() != null)
+            organization.setPrivacyUrl(request.getPrivacyUrl());
 
         organization = organizationRepository.save(organization);
         return organizationMapper.toOrganizationDto(organization);
@@ -137,5 +137,24 @@ public class OrganizationServiceImpl implements OrganizationService {
         organization.setStatus(status);
         organizationRepository.save(organization);
         return organizationMapper.toOrganizationDto(organization);
+    }
+
+    @Override
+    public void checkOrgCode(String orgCode) {
+        Admin currentAdmin = AuthenticationHelper.getCurrentAdmin();
+        if (!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
+            throw new ForbiddenException("You don't have permission to do this action!");
+        Organization organization = organizationRepository.findByCode(orgCode);
+        if (organization != null) {
+            ErrorDetail errorDetail = ErrorDetail.builder()
+                    .field("orgCode")
+                    .issue("The Code is already existing. Please enter another code!")
+                    .build();
+            throw BusinessException.builder()
+                    .code(400)
+                    .message("The Code is already existing. Please enter another code!")
+                    .errors(List.of(errorDetail))
+                    .build();
+        }
     }
 }

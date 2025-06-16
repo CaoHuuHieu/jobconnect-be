@@ -17,4 +17,6 @@ public interface OrganizationService {
     OrganizationDto updateOrganizationDto(String id, OrganizationUpdateDto request);
 
     OrganizationDto activeOrganization(String id, int status);
+
+    void checkOrgCode(String orgCode);
 }

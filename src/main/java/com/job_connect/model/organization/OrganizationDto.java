@@ -1,9 +1,7 @@
 package com.job_connect.model.organization;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 
 @Data
@@ -13,29 +11,27 @@ public class OrganizationDto {
 
     private String name;
 
-    private String address;
-
-    private String email;
-
-    private String phone;
+    private String orgLogo;
 
     private String website;
 
-    private String policyUrl;
+    private String orgCode;
 
-    private String termUrl;
+    private Instant createdAt;
 
-    private String avatar;
+    private String email;
 
-    private String createdBy;
+    private String address;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime createdAt;
+    private String termsUrl;
 
-    private String updatedBy;
+    private String privacyUrl;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
+
+    private String facebook;
+
+    private String linkedIn;
 
     private int status;
 

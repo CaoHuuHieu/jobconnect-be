@@ -9,8 +9,9 @@ import com.job_connect.model.organization.OrganizationRequestDto;
 import com.job_connect.model.organization.OrganizationUpdateDto;
 import com.job_connect.service.OrganizationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -44,6 +45,11 @@ public class OrganizationControllerImpl implements OrganizationController {
     @Override
     public OrganizationDto activeOrganization(String id, int status) {
         return organizationService.activeOrganization(id, status);
+    }
+
+    @Override
+    public void checkOrgCode(String orgCode) {
+        organizationService.checkOrgCode(orgCode);
     }
 
 

@@ -7,18 +7,24 @@ public class OrganizationCreateDto {
 
     private String name;
 
+    private String orgLogo;
+
+    private String website;
+
+    private String orgCode;
+
     private String email;
 
     private String address;
 
-    private String phone;
+    private String termsUrl;
 
-    private String website;
+    private String privacyUrl;
 
-    private String policyUrl;
+    private String facebook;
 
-    private String termUrl;
+    private String linkedIn;
 
-    private String avatar;
+    private int status;
 
 }

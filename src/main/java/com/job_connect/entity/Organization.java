@@ -1,13 +1,14 @@
 package com.job_connect.entity;
 
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -19,57 +20,54 @@ import java.util.UUID;
 public class Organization {
 
     @Id
+    @Column(name = "id")
     private String id;
 
-    @Column
+    @Column(name = "name")
     private String name;
 
-    @Column
-    private String address;
+    @Column(name = "org_logo")
+    private String orgLogo;
 
-    @Column
-    private String email;
-
-    @Column
-    private String phone;
-
-    @Column
+    @Column(name = "website")
     private String website;
 
-    @Column(name = "policy_url")
-    private String policyUrl;
+    @Column(name = "org_code")
+    private String orgCode;
 
-    @Column(name = "term_url")
-    private String termUrl;
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private Instant createdAt;
 
-    @Column
-    private String avatar;
+    @Column(name = "email")
+    private String email;
 
-    @Column
-    private String createdBy;
+    @Column(name = "address")
+    private String address;
 
-    @Column
-    private LocalDateTime createdAt;
+    @Column(name = "terms_url")
+    private String termsUrl;
 
-    @Column
-    private String updatedBy;
+    @Column(name = "privacy_url")
+    private String privacyUrl;
 
-    @Column
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at")
+    @UpdateTimestamp
+    private Instant updatedAt;
+
+    @Column(name = "facebook")
+    private String facebook;
+
+    @Column(name = "linked_in")
+    private String linkedIn;
 
     @Column(name = "status")
-    private int status;
+    private Integer status;
 
     @PrePersist
     public void prePersist() {
         if (this.id == null)
             this.id = UUID.randomUUID().toString();
-        this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 
 }

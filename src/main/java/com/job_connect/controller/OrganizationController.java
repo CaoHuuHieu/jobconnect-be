@@ -5,6 +5,7 @@ import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
 import com.job_connect.model.organization.OrganizationRequestDto;
 import com.job_connect.model.organization.OrganizationUpdateDto;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 public interface OrganizationController {
@@ -24,4 +25,7 @@ public interface OrganizationController {
     @PutMapping("/{id}/{status}")
     OrganizationDto activeOrganization(@PathVariable String id, @PathVariable int status);
 
+    @GetMapping("/checkOrgCode")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void checkOrgCode(@RequestParam String orgCode);
 }
