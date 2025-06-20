@@ -138,4 +138,9 @@ public class AdminServiceImpl implements AdminService {
     public void deleteAdmin(String id) {
 
     }
+
+    @Override
+    public AdminDto active(String id, int status) {
+        return null;
+    }
 }

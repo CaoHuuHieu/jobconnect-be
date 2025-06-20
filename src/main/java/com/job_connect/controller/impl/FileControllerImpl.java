@@ -15,7 +15,6 @@ import static com.job_connect.service.S3Service.LOGO_FOLDER;
 
 @RestController
 @RequestMapping(ApiConstant.FILE_API)
-@CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class FileControllerImpl implements FileController {
 

@@ -7,9 +7,9 @@ CREATE TABLE organizations (
     email VARCHAR(50),
     address VARCHAR(255),
     privacy_url VARCHAR(255),
-    term_url VARCHAR(255),
-    facebook_url VARCHAR(255).
-    linked_in VARCHAR(255)
+    terms_url VARCHAR(255),
+    facebook_url VARCHAR(255),
+    linked_in VARCHAR(255),
     created_at TIMESTAMP,
     updated_at TIMESTAMP,
     status int

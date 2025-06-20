@@ -18,4 +18,5 @@ public interface AdminService {
 
     void deleteAdmin(String id);
 
+    AdminDto active(String id, int status);
 }

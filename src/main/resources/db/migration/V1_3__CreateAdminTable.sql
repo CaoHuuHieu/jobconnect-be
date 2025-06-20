@@ -10,6 +10,7 @@ CREATE TABLE admins (
     created_at TIMESTAMP,
     updated_by VARCHAR(50),
     updated_at TIMESTAMP,
+    status int,
 
     CONSTRAINT fk_admins_organization
         FOREIGN KEY (organization_id) REFERENCES organizations(id),

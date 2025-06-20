@@ -16,8 +16,12 @@ import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
 import com.job_connect.model.organization.OrganizationRequestDto;
 import com.job_connect.model.organization.OrganizationUpdateDto;
+import com.job_connect.rabbitmq.Message;
+import com.job_connect.rabbitmq.RabbitMQConstant;
 import com.job_connect.repository.OrganizationRepository;
 import com.job_connect.service.OrganizationService;
+import com.job_connect.service.RabbitMQService;
+import com.job_connect.util.ObjectMapperUtil;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +33,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +44,7 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     private final OrganizationRepository organizationRepository;
     private final OrganizationMapper organizationMapper;
+    private final RabbitMQService rabbitMQService;
 
     @Override
     public PageResponse<OrganizationDto> getOrganizations(OrganizationRequestDto request) {
@@ -54,7 +60,6 @@ public class OrganizationServiceImpl implements OrganizationService {
                             case Organization_.ID -> cb.equal(root.get(Organization_.ID), request.getSearch());
                             case Organization_.EMAIL -> cb.equal(root.get(Organization_.EMAIL), request.getSearch());
                             case Organization_.NAME -> cb.equal(root.get(Organization_.NAME), request.getSearch());
-                            case Organization_.PHONE -> cb.equal(root.get(Organization_.PHONE), request.getSearch());
                             default -> throw new IllegalStateException("Unexpected value: " + request.getQ());
                         });
             }
@@ -88,7 +93,19 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         Organization organization = organizationMapper.toOrganization(request);
         organization = organizationRepository.save(organization);
+        pushCreateOrganizationMessage(organization);
         return organizationMapper.toOrganizationDto(organization);
+    }
+
+    private void pushCreateOrganizationMessage(Organization org) {
+        Message message = Message.builder()
+                .admin(AuthHelper.getCurrentAdmin().getId())
+                .org(AuthHelper.getCurrentOrg())
+                .createdAt(Instant.now().toString())
+                .msg(org.getName() + " with id: " + org.getId() + " is created by " + AuthHelper.getCurrentAdmin().getId())
+                .build();
+
+        rabbitMQService.pushMessage(RabbitMQConstant.LOG, ObjectMapperUtil.toJson(message));
     }
 
     @Override
@@ -120,6 +137,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             organization.setPrivacyUrl(request.getPrivacyUrl());
 
         organization = organizationRepository.save(organization);
+
         return organizationMapper.toOrganizationDto(organization);
     }
 
@@ -143,7 +161,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         Admin currentAdmin = AuthHelper.getCurrentAdmin();
         if (!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
             throw new ForbiddenException("You don't have permission to do this action!");
-        Organization organization = organizationRepository.findByCode(orgCode);
+        Organization organization = organizationRepository.findByOrgCode(orgCode);
         if (organization != null) {
             ErrorDetail errorDetail = ErrorDetail.builder()
                     .field("orgCode")

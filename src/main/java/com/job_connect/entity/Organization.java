@@ -35,31 +35,31 @@ public class Organization {
     @Column(name = "org_code")
     private String orgCode;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private Instant createdAt;
-
     @Column(name = "email")
     private String email;
 
     @Column(name = "address")
     private String address;
 
+    @Column(name = "privacy_url")
+    private String privacyUrl;
+
     @Column(name = "terms_url")
     private String termsUrl;
 
-    @Column(name = "privacy_url")
-    private String privacyUrl;
+    @Column(name = "facebook_url")
+    private String facebookUrl;
+
+    @Column(name = "linked_in")
+    private String linkedIn;
+
+    @CreationTimestamp
+    @Column(name = "created_at")
+    private Instant createdAt;
 
     @Column(name = "updated_at")
     @UpdateTimestamp
     private Instant updatedAt;
-
-    @Column(name = "facebook")
-    private String facebook;
-
-    @Column(name = "linked_in")
-    private String linkedIn;
 
     @Column(name = "status")
     private Integer status;
