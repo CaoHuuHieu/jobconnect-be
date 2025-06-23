@@ -1,18 +1,21 @@
 package com.job_connect.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.job_connect.rabbitmq.Message;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ObjectMapperUtil {
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);;
 
     public static<T> String toJson(T object) {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (Exception e) {
-            log.error("Cannot convert object to json!");
+            log.error("[ObjectMapperUtil][toJson] ERROR {}", e.getMessage());
             return null;
         }
     }
@@ -21,7 +24,7 @@ public class ObjectMapperUtil {
         try {
             return objectMapper.readValue(msg, clazz);
         } catch (Exception e) {
-            log.error("Cannot convert json to object!");
+            log.error("[ObjectMapperUtil][toObject] ERROR {}", e.getMessage());
             return null;
         }
 

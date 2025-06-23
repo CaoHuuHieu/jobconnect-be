@@ -5,6 +5,7 @@ import com.job_connect.model.admin.AdminCreateDto;
 import com.job_connect.model.admin.AdminDto;
 import com.job_connect.model.admin.AdminRequestDto;
 import com.job_connect.model.admin.AdminUpdateDto;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 public interface AdminController {
@@ -16,7 +17,7 @@ public interface AdminController {
     AdminDto getAdmin(@PathVariable String id);
 
     @PostMapping
-    AdminDto createAdmin(@RequestBody AdminCreateDto request);
+    AdminDto createAdmin(@RequestBody @Valid AdminCreateDto request);
 
     @PutMapping("/{id}")
     AdminDto updateAdmin(@PathVariable String id, @RequestBody AdminUpdateDto request);

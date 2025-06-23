@@ -1,5 +1,6 @@
 package com.job_connect.service.impl;
 
+import com.job_connect.HibernateUtil;
 import com.job_connect.entity.Admin;
 import com.job_connect.entity.Organization;
 import com.job_connect.entity.Organization_;
@@ -10,7 +11,6 @@ import com.job_connect.exception.NotFoundException;
 import com.job_connect.helper.AuthHelper;
 import com.job_connect.mapper.OrganizationMapper;
 import com.job_connect.model.ErrorDetail;
-import com.job_connect.model.ErrorResponse;
 import com.job_connect.model.PageResponse;
 import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
@@ -54,13 +54,14 @@ public class OrganizationServiceImpl implements OrganizationService {
             if (!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN)) {
                 predicates.add(cb.equal(root.get(Organization_.ID), currentAdmin.getOrganization().getId()));
             }
-            if (StringUtils.isNotBlank(request.getQ()) && StringUtils.isNotBlank(request.getSearch())) {
+            if (StringUtils.isNotBlank(request.getSearchBy()) && StringUtils.isNotBlank(request.getSearchValue())) {
                 predicates.add(
-                        switch (request.getQ()) {
-                            case Organization_.ID -> cb.equal(root.get(Organization_.ID), request.getSearch());
-                            case Organization_.EMAIL -> cb.equal(root.get(Organization_.EMAIL), request.getSearch());
-                            case Organization_.NAME -> cb.equal(root.get(Organization_.NAME), request.getSearch());
-                            default -> throw new IllegalStateException("Unexpected value: " + request.getQ());
+                        switch (request.getSearchBy()) {
+                            case Organization_.ID -> cb.equal(root.get(Organization_.ID), request.getSearchValue());
+                            case Organization_.NAME -> cb.like(cb.lower(root.get(Organization_.NAME)),
+                                    HibernateUtil.betweenWith(request.getSearchValue()));
+                            case Organization_.ORG_CODE -> cb.equal(root.get(Organization_.ORG_CODE), request.getSearchValue());
+                            default -> null;
                         });
             }
             return cb.and(predicates.toArray(new Predicate[0]));
@@ -135,10 +136,25 @@ public class OrganizationServiceImpl implements OrganizationService {
             organization.setTermsUrl(request.getTermsUrl());
         if(request.getPrivacyUrl() != null)
             organization.setPrivacyUrl(request.getPrivacyUrl());
+        if(request.getFacebook() != null)
+            organization.setFacebook(request.getFacebook());
+        if(request.getLinkedIn() != null)
+            organization.setLinkedIn(request.getLinkedIn());
 
         organization = organizationRepository.save(organization);
-
+        pushUpdateOrganizationMessage(organization);
         return organizationMapper.toOrganizationDto(organization);
+    }
+
+    private void pushUpdateOrganizationMessage(Organization org) {
+        Message message = Message.builder()
+                .admin(AuthHelper.getCurrentAdmin().getId())
+                .org(org.getId())
+                .createdAt(Instant.now().toString())
+                .msg(org.getName() + " with id: " + org.getId() + " is updated by " + AuthHelper.getCurrentAdmin().getId())
+                .build();
+
+        rabbitMQService.pushMessage(RabbitMQConstant.LOG, ObjectMapperUtil.toJson(message));
     }
 
     @Override

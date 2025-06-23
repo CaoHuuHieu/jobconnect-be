@@ -5,6 +5,7 @@ import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
 import com.job_connect.model.organization.OrganizationRequestDto;
 import com.job_connect.model.organization.OrganizationUpdateDto;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,10 +18,10 @@ public interface OrganizationController {
     OrganizationDto getOrganization(@PathVariable String id);
 
     @PostMapping
-    OrganizationDto createOrganization(@RequestBody OrganizationCreateDto request);
+    OrganizationDto createOrganization(@RequestBody @Valid OrganizationCreateDto request);
 
     @PutMapping("/{id}")
-    OrganizationDto updateOrganization(@PathVariable String id, @RequestBody OrganizationUpdateDto request);
+    OrganizationDto updateOrganization(@PathVariable String id, @RequestBody @Valid OrganizationUpdateDto request);
 
     @PutMapping("/{id}/{status}")
     OrganizationDto activeOrganization(@PathVariable String id, @PathVariable int status);

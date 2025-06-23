@@ -48,7 +48,7 @@ public class Organization {
     private String termsUrl;
 
     @Column(name = "facebook_url")
-    private String facebookUrl;
+    private String facebook;
 
     @Column(name = "linked_in")
     private String linkedIn;

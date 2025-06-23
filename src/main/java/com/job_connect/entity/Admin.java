@@ -2,8 +2,10 @@ package com.job_connect.entity;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -12,6 +14,8 @@ import java.util.UUID;
 
 @Data
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "admins")
 @Builder
 public class Admin {
@@ -23,6 +27,9 @@ public class Admin {
 
     @Column
     private String email;
+
+    @Column
+    private String employeeId;
 
     @Column
     private String phoneNumber;
@@ -51,6 +58,9 @@ public class Admin {
     @Column
     @UpdateTimestamp
     private Instant updatedAt;
+
+    @Column
+    private int status;
 
     @PrePersist
     public void prePersist() {

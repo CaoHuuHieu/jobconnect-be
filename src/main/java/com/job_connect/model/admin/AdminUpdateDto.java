@@ -10,6 +10,8 @@ public class AdminUpdateDto {
 
     private String email;
 
+    private String employeeId;
+
     private String phoneNumber;
 
     private String avt;

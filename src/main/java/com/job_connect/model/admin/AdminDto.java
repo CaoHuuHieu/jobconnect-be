@@ -1,6 +1,5 @@
 package com.job_connect.model.admin;
 
-import com.job_connect.entity.Role;
 import com.job_connect.model.organization.OrganizationDto;
 import lombok.Data;
 
@@ -16,11 +15,13 @@ public class AdminDto {
 
     private String phoneNumber;
 
+    private String employeeId;
+
     private String avt;
 
     private OrganizationDto organization;
 
-    private Role role;
+    private RoleDto role;
 
     private String createdBy;
 

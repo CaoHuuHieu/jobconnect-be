@@ -1,7 +1,9 @@
 package com.job_connect.service.impl;
 
+import com.job_connect.rabbitmq.Message;
 import com.job_connect.rabbitmq.RabbitMQConstant;
 import com.job_connect.service.RabbitMQService;
+import com.job_connect.util.ObjectMapperUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +35,15 @@ public class RabbitMQServiceImpl implements RabbitMQService {
                 log.info("Push message to queue {} and exchange {}", queue.getQueue(), queue.getExchange());
                 rabbitTemplate.convertAndSend(queue.getExchange(), queue.getRoutingKey(), msg);
             }
+        );
+    }
+
+    @Override
+    public void pushMessage(RabbitMQConstant queue, Message msg) {
+        rabbitExecutor.execute(() -> {
+                    log.info("Push message to queue {} and exchange {}", queue.getQueue(), queue.getExchange());
+                    rabbitTemplate.convertAndSend(queue.getExchange(), queue.getRoutingKey(), ObjectMapperUtil.toJson(msg));
+                }
         );
     }
 
