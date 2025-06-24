@@ -1,4 +1,4 @@
-package com.job_connect;
+package com.job_connect.util;
 
 public class HibernateUtil {
 

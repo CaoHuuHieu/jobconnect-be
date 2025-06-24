@@ -1,6 +1,6 @@
 package com.job_connect.service.impl;
 
-import com.job_connect.HibernateUtil;
+import com.job_connect.util.HibernateUtil;
 import com.job_connect.entity.*;
 import com.job_connect.exception.ForbiddenException;
 import com.job_connect.exception.NotFoundException;

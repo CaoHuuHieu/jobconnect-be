@@ -1,28 +1,29 @@
 package com.job_connect.helper;
 
+import com.job_connect.config.security.AdminAuthentication;
 import com.job_connect.entity.Admin;
-import com.job_connect.entity.Organization;
-import com.job_connect.entity.Role;
+import com.job_connect.exception.UnAuthorizeException;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class AuthHelper {
 
     public static Admin getCurrentAdmin() {
-//        SecurityContextHolder.getContext().getAuthentication()
-        return Admin.builder()
-                .role(Role.builder().code(Role.SUPER_ADMIN).build())
-                .organization(Organization.builder().id("1").build())
-                .build();
+      try {
+          AdminAuthentication authentication = (AdminAuthentication) SecurityContextHolder
+                  .getContext()
+                  .getAuthentication();
+          return authentication.getAdmin();
+      } catch (Exception e) {
+          throw new UnAuthorizeException();
+      }
     }
 
     public static String getCurrentRole() {
-//        SecurityContextHolder.getContext().getAuthentication()
         Admin admin = getCurrentAdmin();
         return admin.getRole().getCode();
     }
 
     public static String getCurrentOrg() {
-//        SecurityContextHolder.getContext().getAuthentication()
         Admin admin = getCurrentAdmin();
         return admin.getOrganization().getId();
     }

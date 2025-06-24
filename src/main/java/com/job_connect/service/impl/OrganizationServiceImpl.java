@@ -1,6 +1,6 @@
 package com.job_connect.service.impl;
 
-import com.job_connect.HibernateUtil;
+import com.job_connect.util.HibernateUtil;
 import com.job_connect.entity.Admin;
 import com.job_connect.entity.Organization;
 import com.job_connect.entity.Organization_;

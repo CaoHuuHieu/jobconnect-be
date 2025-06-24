@@ -29,4 +29,13 @@ public class ObjectMapperUtil {
         }
 
     }
+
+    public static byte[] writeValueAsBytes(Object object) {
+        try {
+            return objectMapper.writeValueAsBytes(object);
+        } catch (Exception e) {
+            log.error("[ObjectMapperUtil][writeValueAsBytes] ERROR {}", e.getMessage());
+            return new byte[0];
+        }
+    }
 }
