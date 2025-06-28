@@ -1,21 +1,22 @@
 package com.job_connect.helper;
 
-import com.job_connect.config.security.AdminAuthentication;
+import com.job_connect.config.security.TokenAuthentication;
 import com.job_connect.entity.Admin;
-import com.job_connect.exception.UnAuthorizeException;
+import com.job_connect.exception.BusinessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 public class AuthHelper {
 
+    private AuthHelper() {}
+
     public static Admin getCurrentAdmin() {
-      try {
-          AdminAuthentication authentication = (AdminAuthentication) SecurityContextHolder
+          TokenAuthentication authentication = (TokenAuthentication) SecurityContextHolder
                   .getContext()
                   .getAuthentication();
-          return authentication.getAdmin();
-      } catch (Exception e) {
-          throw new UnAuthorizeException();
-      }
+          if(authentication == null)
+              throw new BusinessException(HttpStatus.UNAUTHORIZED);
+          return authentication.admin();
     }
 
     public static String getCurrentRole() {

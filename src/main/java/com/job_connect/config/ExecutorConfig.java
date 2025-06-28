@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 public class ExecutorConfig {
 
     @Bean
-    public ExecutorService rabbitExecutor() {
+    public ExecutorService executor() {
         return Executors.newFixedThreadPool(5);
     }
 

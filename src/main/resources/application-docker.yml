@@ -35,6 +35,13 @@ spring:
     host: ${SPRING_REDIS_HOST}
     port: ${SPRING_REDIS_PORT}
 #    password: yourpassword
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+          client-id: ${JWT_CLIENT_ID}
 config:
   aws_s3:
     region: us-east-1

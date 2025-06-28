@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: db_user
       POSTGRES_PASSWORD: db_password
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
@@ -29,27 +29,28 @@ services:
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: admin
 
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: job_connect
-    depends_on:
-      - postgres
-      - redis
-      - rabbitmq
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/job_connect
-      SPRING_DATASOURCE_USERNAME: db_user
-      SPRING_DATASOURCE_PASSWORD: db_password
-      SPRING_REDIS_HOST: redis
-      SPRING_REDIS_PORT: 6379
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: admin
-      SPRING_RABBITMQ_PASSWORD: admin
+#  app:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    container_name: job_connect
+#    depends_on:
+#      - postgres
+#      - redis
+#      - rabbitmq
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/job_connect
+#      SPRING_DATASOURCE_USERNAME: db_user
+#      SPRING_DATASOURCE_PASSWORD: db_password
+#      SPRING_REDIS_HOST: redis
+#      SPRING_REDIS_PORT: 6379
+#      SPRING_RABBITMQ_HOST: rabbitmq
+#      SPRING_RABBITMQ_PORT: 5672
+#      SPRING_RABBITMQ_USERNAME: admin
+#      SPRING_RABBITMQ_PASSWORD: admin
+#      JWT_CLIENT_ID: 425875539698-rs2j9g709rqm50df6ef8nss2oj9a5a1v.apps.googleusercontent.com
 
 volumes:
   postgres-data:

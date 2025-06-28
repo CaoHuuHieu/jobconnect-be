@@ -1,12 +1,12 @@
 spring:
-  profiles:
-    active: "docker"
+#  profiles:
+#    active: "docker"
   application:
     name: job_connect
   datasource:
-    url: jdbc:postgresql://localhost:5432/job_connect
-    username: postgres
-    password: postgres
+    url: jdbc:postgresql://localhost:5433/job_connect
+    username: db_user
+    password: db_password
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 10
@@ -29,14 +29,20 @@ spring:
     baseline-version: 0
 
   rabbitmq:
-    host: "localhost"
+    host: localhost
     port: 5672
-    username: "admin"
-    password: "password"
+    username: admin
+    password: admin
   redis:
     host: localhost
     port: 6379
 #    password: yourpassword
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://accounts.google.com
+          client-id: 425875539698-rs2j9g709rqm50df6ef8nss2oj9a5a1v.apps.googleusercontent.com
 config:
     aws_s3:
       region: us-east-1

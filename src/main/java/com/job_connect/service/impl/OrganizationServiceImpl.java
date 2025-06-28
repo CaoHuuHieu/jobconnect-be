@@ -6,11 +6,8 @@ import com.job_connect.entity.Organization;
 import com.job_connect.entity.Organization_;
 import com.job_connect.entity.Role;
 import com.job_connect.exception.BusinessException;
-import com.job_connect.exception.ForbiddenException;
-import com.job_connect.exception.NotFoundException;
 import com.job_connect.helper.AuthHelper;
 import com.job_connect.mapper.OrganizationMapper;
-import com.job_connect.model.ErrorDetail;
 import com.job_connect.model.PageResponse;
 import com.job_connect.model.organization.OrganizationCreateDto;
 import com.job_connect.model.organization.OrganizationDto;
@@ -31,6 +28,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -77,10 +75,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN)
                 && !currentAdmin.getOrganization().getId().equals(id) )
-                throw new ForbiddenException("You don't have permission to do this action!");
+                throw new BusinessException(HttpStatus.FORBIDDEN);
 
         Organization organization = organizationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Organization doesn't found!"));
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND));
 
         return organizationMapper.toOrganizationDto(organization);
     }
@@ -90,7 +88,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public OrganizationDto createOrganization(OrganizationCreateDto request) {
         Admin currentAdmin = AuthHelper.getCurrentAdmin();
         if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
-            throw new ForbiddenException("You don't have permission to do this action!");
+            throw new BusinessException(HttpStatus.FORBIDDEN);
 
         Organization organization = organizationMapper.toOrganization(request);
         organization = organizationRepository.save(organization);
@@ -117,11 +115,11 @@ public class OrganizationServiceImpl implements OrganizationService {
                 ||
             (currentAdmin.getRole().getCode().equals(Role.ORG_ADMIN) && !currentAdmin.getOrganization().getId().equals(id))
         ) {
-            throw new ForbiddenException("You don't have permission to do this action!");
+            throw new BusinessException(HttpStatus.FORBIDDEN);
         }
 
         Organization organization = organizationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Organization doesn't found"));
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND));
         if(request.getOrgLogo() != null)
             organization.setOrgLogo(request.getOrgLogo());
         if(request.getName() != null)
@@ -162,10 +160,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     public OrganizationDto activeOrganization(String id, int status) {
         Admin currentAdmin = AuthHelper.getCurrentAdmin();
         if(!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
-            throw new ForbiddenException("You don't have permission to do this action!");
+            throw new BusinessException(HttpStatus.FORBIDDEN);
 
         Organization organization = organizationRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Cannot find this organization!"));
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND));
 
         organization.setStatus(status);
         organizationRepository.save(organization);
@@ -176,18 +174,10 @@ public class OrganizationServiceImpl implements OrganizationService {
     public void checkOrgCode(String orgCode) {
         Admin currentAdmin = AuthHelper.getCurrentAdmin();
         if (!currentAdmin.getRole().getCode().equals(Role.SUPER_ADMIN))
-            throw new ForbiddenException("You don't have permission to do this action!");
+            throw new BusinessException(HttpStatus.FORBIDDEN);
         Organization organization = organizationRepository.findByOrgCode(orgCode);
         if (organization != null) {
-            ErrorDetail errorDetail = ErrorDetail.builder()
-                    .field("orgCode")
-                    .issue("The Code is already existing. Please enter another code!")
-                    .build();
-            throw BusinessException.builder()
-                    .code(400)
-                    .message("The Code is already existing. Please enter another code!")
-                    .errors(List.of(errorDetail))
-                    .build();
+            throw new BusinessException(HttpStatus.BAD_REQUEST);
         }
     }
 }

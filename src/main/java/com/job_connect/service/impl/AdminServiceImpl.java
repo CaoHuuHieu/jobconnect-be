@@ -1,9 +1,8 @@
 package com.job_connect.service.impl;
 
+import com.job_connect.exception.BusinessException;
 import com.job_connect.util.HibernateUtil;
 import com.job_connect.entity.*;
-import com.job_connect.exception.ForbiddenException;
-import com.job_connect.exception.NotFoundException;
 import com.job_connect.helper.AuthHelper;
 import com.job_connect.mapper.AdminMapper;
 import com.job_connect.model.PageResponse;
@@ -27,6 +26,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -48,7 +48,7 @@ public class AdminServiceImpl implements AdminService {
         Admin currentAdmin = AuthHelper.getCurrentAdmin();
         //only super admin and org_admin can perform this action
         if(!List.of(Role.SUPER_ADMIN, Role.ORG_ADMIN).contains(AuthHelper.getCurrentRole()))
-            throw new ForbiddenException();
+            throw new BusinessException(HttpStatus.FORBIDDEN);
 
         Specification<Admin> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -75,17 +75,17 @@ public class AdminServiceImpl implements AdminService {
     @Override
     public AdminDto getAdmin(String id) {
         Admin admin = adminRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Admin doesn't found"));
+                .orElseThrow(() -> new BusinessException(HttpStatus.NOT_FOUND));
 
         if(AuthHelper.getCurrentRole().equals(Role.ORG_ADMIN)) {
             if(!admin.getOrganization().getId().equals(AuthHelper.getCurrentOrg()))
-                throw new NotFoundException("Admin doesn't found");
+                throw new BusinessException(HttpStatus.NOT_FOUND);
         }
 
         if(AuthHelper.getCurrentRole().equals(Role.HR_ADMIN)
                 && id.equals(AuthHelper.getCurrentAdmin().getId())
         ) {
-            throw new NotFoundException("Admin doesn't found");
+            throw new BusinessException(HttpStatus.NOT_FOUND);
         }
 
         return adminMapper.toAdminDto(admin);
@@ -98,26 +98,27 @@ public class AdminServiceImpl implements AdminService {
 
         //Only Super Admin and Org Admin can perform this action
         if(!(currentRole.equals(Role.SUPER_ADMIN) || currentRole.equals(Role.ORG_ADMIN))) {
-            throw new ForbiddenException();
+            throw new BusinessException(HttpStatus.BAD_REQUEST);
         }
 
         Organization organization = null;
         if(request.getRoleCode().equals(Role.SUPER_ADMIN)) {
             //Only SuperAdmin can create another SuperAdmin
             if(!currentRole.equals(Role.SUPER_ADMIN))
-                throw new ForbiddenException();
+                throw new BusinessException(HttpStatus.BAD_REQUEST);
         } else {
             //SuperAdmin can create admins for any org and OrgAmin only can create admins for their org!
+            String orgId = null;
             if(currentRole.equals(Role.SUPER_ADMIN))
-                 organization = organizationRepository.findById(request.getOrgId())
-                    .orElseThrow(() -> new NotFoundException("Organization doesn't found"));
+                orgId = request.getOrgId();
             else
-                organization = organizationRepository.findById(AuthHelper.getCurrentOrg())
-                    .orElseThrow(() -> new NotFoundException("Organization doesn't found"));
+                orgId = AuthHelper.getCurrentOrg();
+            organization = organizationRepository.findById(orgId)
+                    .orElseThrow(() -> new BusinessException(HttpStatus.BAD_REQUEST));
         }
 
         Role role = roleRepository.findByCode(request.getRoleCode())
-                .orElseThrow(() -> new NotFoundException("Role doesn't found"));
+                .orElseThrow(() -> new BusinessException(HttpStatus.BAD_REQUEST));
 
         Admin admin = Admin.builder()
                 .fullName(request.getFullName())
@@ -152,26 +153,26 @@ public class AdminServiceImpl implements AdminService {
 
         //Only Super Admin and Org Admin can perform this action
         if(!(currentAdminRole.equals(Role.SUPER_ADMIN) || currentAdminRole.equals(Role.ORG_ADMIN))) {
-            throw new ForbiddenException();
+            throw new BusinessException(HttpStatus.FORBIDDEN);
         }
 
         Admin admin = adminRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Admin doesn't found"));
+                .orElseThrow(() ->  new BusinessException(HttpStatus.BAD_REQUEST));
 
         Organization organization = null;
         if(request.getRoleCode().equals(Role.SUPER_ADMIN)) {
             //Only SuperAdmin can update an admin to SuperAdmin
             if(!currentAdminRole.equals(Role.SUPER_ADMIN))
-                throw new ForbiddenException();
+                throw new BusinessException(HttpStatus.FORBIDDEN);
         } else {
             //Only super admins can change the organization for admins
             if(currentAdminRole.equals(Role.SUPER_ADMIN))
                 organization = organizationRepository.findById(request.getOrgId())
-                        .orElseThrow(() -> new NotFoundException("Organization doesn't found"));
+                        .orElseThrow(() ->  new BusinessException(HttpStatus.BAD_REQUEST));
         }
 
         Role role = roleRepository.findByCode(request.getRoleCode())
-                .orElseThrow(() -> new NotFoundException("Role doesn't found"));
+                .orElseThrow(() -> new BusinessException(HttpStatus.BAD_REQUEST));
 
         admin.setOrganization(organization);
         admin.setRole(role);

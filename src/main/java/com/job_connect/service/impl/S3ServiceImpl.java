@@ -1,10 +1,10 @@
 package com.job_connect.service.impl;
 
-import com.job_connect.exception.AWSS3Exception;
-import com.job_connect.exception.FileIOException;
+import com.job_connect.exception.BusinessException;
 import com.job_connect.model.s3.UrlDto;
 import com.job_connect.service.S3Service;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -12,7 +12,6 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
-import java.io.IOException;
 
 
 @Service
@@ -26,7 +25,6 @@ public class S3ServiceImpl implements S3Service {
                          @Value("${config.aws_s3.public_bucket}") String publicBucket) {
         this.publicBucket = publicBucket;
         this.s3Client = S3Client.builder()
-                    .region(Region.of(regionName))
                     .build();
     }
 
@@ -40,11 +38,8 @@ public class S3ServiceImpl implements S3Service {
             RequestBody requestBody = RequestBody.fromBytes(file.getBytes());
             s3Client.putObject(request, requestBody);
             return new UrlDto(location);
-        }catch (IOException e) {
-            throw new FileIOException(e.getMessage());
-        }
-        catch (Exception e) {
-            throw new AWSS3Exception(e.getMessage());
+        }catch (Exception e) {
+            throw new BusinessException(HttpStatus.BAD_REQUEST);
         }
     }
 
