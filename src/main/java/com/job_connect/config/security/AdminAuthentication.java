@@ -21,6 +21,7 @@ public class AdminAuthentication implements Authentication {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+        System.out.println("Sayhello");
         return List.of(new SimpleGrantedAuthority(admin.getRole().getCode()));
     }
 
